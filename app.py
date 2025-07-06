@@ -39,7 +39,7 @@ def login():
         if user:
             session['username'] = username
             if username == "admin" and password == "admin123":
-                return redirect(url_for('admin_panel'))
+                return redirect('/admin')
             return redirect('/home')
         else:
             return render_template('login.html', error='Невірний логін або пароль')
