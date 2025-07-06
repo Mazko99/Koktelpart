@@ -1,0 +1,28 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4 text-white">Личные диалоги</h2>
+    <div>
+    {% for dialog in dialogs %}
+        <div style="padding: 12px; border-radius: 8px; margin-bottom: 10px;
+             {% if dialog.unread_count > 0 %}
+                background-color: #ffc107; font-weight: bold; color: #000;
+             {% else %}
+                background-color: #1e1e1e; color: #fff;
+             {% endif %}
+             ">
+            <a href="{{ url_for('private_chat', username=dialog.partner) }}"
+               style="text-decoration: none; {% if dialog.unread_count == 0 %} color: #fff; {% else %} color: #000; {% endif %}">
+               {{ dialog.partner }}
+            </a>
+            {% if dialog.unread_count > 0 %}
+                <span style="float: right; background: red; color: white; padding: 4px 8px; border-radius: 12px;">
+                    {{ dialog.unread_count }}
+                </span>
+            {% endif %}
+        </div>
+    {% endfor %}
+    </div>
+</div>
+{% endblock %}

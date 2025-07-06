@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Профіль</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+    }
+    .menu {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 20px;
+      font-size: 18px;
+    }
+    .menu a {
+      color: #d9b3ff;
+      text-decoration: none;
+    }
+    .menu a:hover {
+      text-shadow: 0 0 10px #ff00ff;
+    }
+    .container-box {
+      background-color: #111;
+      border: 2px solid #6600cc;
+      border-radius: 20px;
+      padding: 30px;
+      margin-top: 30px;
+      box-shadow: 0 0 25px #9900ff;
+    }
+    .form-control, .btn {
+      background-color: #1a1a1a;
+      color: #fff;
+      border: 1px solid #444;
+    }
+    .form-label, h2, h4 {
+      color: #d9b3ff;
+    }
+    .verified-box {
+      border: 2px solid #9900ff;
+      color: #fff;
+      background: #2a003f;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .gallery-scroll {
+      display: flex;
+      overflow-x: auto;
+      gap: 10px;
+      padding-bottom: 10px;
+    }
+    .media-item {
+      flex: 0 0 auto;
+      min-width: 180px;
+      max-width: 200px;
+    }
+    .media-item img,
+    .media-item video {
+      width: 100%;
+      border-radius: 8px;
+    }
+    .product-card {
+      background-color: #1c002f;
+      border: 1px solid #7a00cc;
+      color: #fff;
+      border-radius: 10px;
+      padding: 10px;
+      max-width: 240px;
+      text-align: center;
+    }
+    .product-card img {
+      width: 100%;
+      border-radius: 8px;
+    }
+    .neon-btn {
+      background-color: transparent;
+      border: 1px solid #d9b3ff;
+      color: #d9b3ff;
+      border-radius: 8px;
+      padding: 5px 15px;
+      transition: 0.3s;
+    }
+    .neon-btn:hover {
+      background-color: #d9b3ff;
+      color: #000;
+      box-shadow: 0 0 15px #d9b3ff;
+    }
+  </style>
+</head>
+<body>
+<div class="menu">
+  <a href="/home">🏠 Головна</a>
+  <a href="/profile">👤 Профіль</a>
+  <a href="/logout">📕 Вийти</a>
+</div>
+
+<div class="container container-box">
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="alert alert-success alert-dismissible fade show" role="alert" id="flash-message">
+        {{ messages[0] }}
+      </div>
+      <script>
+        setTimeout(() => {
+          const msg = document.getElementById('flash-message');
+          if (msg) msg.remove();
+        }, 3000);
+      </script>
+    {% endif %}
+  {% endwith %}
+
+  <h2>Профіль користувача {{ username }}</h2>
+
+  {% if user[5] == 1 %}
+    <div class="verified-box">✅ Верифіковано</div>
+  {% endif %}
+
+  {% if last_seen %}
+    {% set delta = (datetime.utcnow() - last_seen).total_seconds() %}
+    <p>
+      {% if delta < 120 %}🟢 Зараз в мережі
+      {% else %}🕓 Був у мережі {{ (delta // 60)|int }} хв тому
+      {% endif %}
+    </p>
+  {% endif %}
+
+  {% if session['username'] == username %}
+  <form method="POST" action="/update_profile" enctype="multipart/form-data">
+    <input type="hidden" name="visible" value="1">
+
+    <div class="row">
+      <div class="col-md-3 text-center">
+        <img src="/{{ user[4] or 'static/Sample_User_Icon.png' }}" class="img-thumbnail mb-2" style="max-width: 120px;">
+        <input type="file" name="avatar" class="form-control mt-2">
+      </div>
+      <div class="col-md-9">
+        <label class="form-label">Опис:</label>
+        <textarea name="description" class="form-control" maxlength="150" required>{{ user[6] or '' }}</textarea>
+
+        <label class="form-label mt-3">Категорія:</label>
+        <select name="category" id="category" class="form-control" required onchange="handleCategoryChange()">
+          <option value="Без категорії" {% if user[7] == 'Без категорії' %}selected{% endif %}>Без категорії</option>
+          <option value="Віртуальні моделі" {% if user[7] == 'Віртуальні моделі' %}selected{% endif %}>Віртуальні моделі</option>
+          <option value="Індивідуалки" {% if user[7] == 'Індивідуалки' %}selected{% endif %}>Індивідуалки</option>
+        </select>
+
+        <div id="city-wrapper" class="mt-3">
+          <label class="form-label">Місто:</label>
+          <select name="city" class="form-control" id="city-select">
+            <option value="">Оберіть місто</option>
+            {% for city in ['Київ','Львів','Харків','Одеса','Дніпро','Запоріжжя','Івано-Франківськ','Тернопіль','Чернівці','Ужгород','Полтава','Чернігів','Житомир','Хмельницький'] %}
+              <option value="Реал - {{ city }}" {% if user[8] == 'Реал - ' + city %}selected{% endif %}>Реал - {{ city }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">💾 Зберегти зміни</button>
+      </div>
+    </div>
+  </form>
+
+  <script>
+    function handleCategoryChange() {
+      const category = document.getElementById("category").value;
+      const cityWrapper = document.getElementById("city-wrapper");
+
+      if (category === "Віртуальні моделі") {
+        cityWrapper.style.display = "none";
+        document.getElementById("city-select").value = "";
+      } else {
+        cityWrapper.style.display = "block";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", handleCategoryChange);
+  </script>
+  {% else %}
+    <div class="text-end">
+      <a href="/chat_with/{{ user[1] }}" class="btn neon-btn">💬 Написати</a>
+    </div>
+  {% endif %}
+
+  <h4 class="mt-4">Галерея</h4>
+  <div class="gallery-scroll mb-3">
+    {% for filename in photos %}
+    <div class="media-item">
+      {% set ext = filename.split('.')[-1].lower() %}
+      {% if ext in ['jpg', 'jpeg', 'png'] %}
+        <img src="{{ url_for('static', filename='uploads/' ~ username ~ '/' ~ filename) }}">
+      {% elif ext in ['mp4', 'webm'] %}
+        <video controls><source src="{{ url_for('static', filename='uploads/' ~ username ~ '/' ~ filename) }}"></video>
+      {% endif %}
+      {% if session['username'] == username %}
+      <form action="/delete_photo" method="POST">
+        <input type="hidden" name="filename" value="{{ filename }}">
+        <button class="btn btn-sm btn-danger mt-2">Видалити</button>
+      </form>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if session['username'] == username %}
+  <form action="/upload_media" method="POST" enctype="multipart/form-data">
+    <label>Завантажити медіа:</label>
+    <input type="file" name="media_files" class="form-control" multiple required>
+    <button class="btn btn-success mt-2">Завантажити</button>
+  </form>
+  {% endif %}
+
+  <h4 class="mt-4">Товари</h4>
+  {% if session['username'] == username %}
+    <a href="/add_product" class="btn neon-btn mb-2">➕ Додати товар</a>
+  {% endif %}
+  <div class="d-flex flex-wrap gap-3">
+    {% for product in products %}
+      <div class="product-card">
+        <img src="{{ url_for('static', filename='uploads/' + product[4]) }}">
+        <strong>{{ product[1] }}</strong>
+        <small>{{ product[2] }}</small>
+        <div>{{ product[3] }} {{ product[5] }}</div>
+        {% if session['username'] == username %}
+        <form method="POST" action="/delete_product">
+          <input type="hidden" name="product_id" value="{{ product[0] }}">
+          <button class="btn btn-sm btn-danger mt-1">Видалити</button>
+        </form>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+</body>
+</html>

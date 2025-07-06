@@ -1,0 +1,25 @@
+{% extends 'admin/layout.html' %}
+
+{% block title %}Список переписок{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>💬 Переписки</h2>
+    <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary">← Назад до користувачів</a>
+  </div>
+
+  {% if dialogs %}
+    <div class="list-group">
+      {% for dialog in dialogs %}
+        <a href="{{ url_for('admin.view_dialog', user1=dialog[0], user2=dialog[1]) }}"
+           class="list-group-item list-group-item-action bg-dark text-light">
+          {{ dialog[0] }} <span class="text-muted">↔</span> {{ dialog[1] }}
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-warning">Переписок не знайдено.</div>
+  {% endif %}
+</div>
+{% endblock %}

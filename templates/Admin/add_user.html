@@ -1,0 +1,26 @@
+{% extends 'admin/layout.html' %}
+{% block title %}Додати користувача{% endblock %}
+
+{% block content %}
+<h2>➕ Додати нового користувача</h2>
+
+<form method="post">
+  <div class="mb-3">
+    <label for="username" class="form-label">Ім'я користувача</label>
+    <input type="text" class="form-control" id="username" name="username" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="email" class="form-label">Email</label>
+    <input type="email" class="form-control" id="email" name="email" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="password" class="form-label">Пароль</label>
+    <input type="password" class="form-control" id="password" name="password" required>
+  </div>
+
+  <button type="submit" class="btn btn-success">💾 Зберегти</button>
+  <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary">← Назад</a>
+</form>
+{% endblock %}

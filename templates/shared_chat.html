@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>💬 Спільний чат</title>
+  <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+    }
+    .menu {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 20px;
+      font-size: 18px;
+    }
+    .menu a {
+      color: #d9b3ff;
+      text-decoration: none;
+    }
+    .menu a:hover {
+      text-shadow: 0 0 10px #ff00ff;
+    }
+    h2 {
+      text-align: center;
+      margin-top: 20px;
+      text-shadow: 0 0 15px #ff00ff;
+    }
+    .chat-box {
+      background-color: #111;
+      border: 2px solid #9900ff;
+      border-radius: 20px;
+      padding: 20px;
+      max-height: 500px;
+      overflow-y: auto;
+      margin: 30px auto;
+      width: 90%;
+      box-shadow: 0 0 30px #9900ff;
+    }
+    .message {
+      margin-bottom: 15px;
+    }
+    .reply {
+      color: #aaa;
+      font-size: 14px;
+      border-left: 2px solid #6600cc;
+      padding-left: 10px;
+      margin-bottom: 3px;
+    }
+    .message strong {
+      color: #66ccff;
+    }
+    .chat-box img {
+      max-width: 180px;
+      margin-top: 5px;
+      cursor: pointer;
+      border-radius: 10px;
+      border: 1px solid #555;
+    }
+    .form-control, .btn {
+      background-color: #222;
+      color: #fff;
+      border: 1px solid #6600cc;
+    }
+    .form-control:focus {
+      border-color: #9900ff;
+      box-shadow: 0 0 5px #9900ff;
+    }
+    .btn:hover {
+      background-color: #6600cc;
+    }
+    .reply-btn {
+      font-size: 13px;
+      color: #888;
+      cursor: pointer;
+    }
+    .reply-btn:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+    #reply-to {
+      color: #ccc;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+    #message {
+      border: 2px solid #9900ff;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #9900ff;
+      background-color: #111;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="menu">
+    <a href="/home">🏠 Головна</a>
+    <a href="/profile">👤 Профіль</a>
+    <a href="/logout">📕 Вийти</a>
+  </div>
+
+  <h2>🌐 Спільний чат</h2>
+
+  <div class="chat-box" id="chat-box">
+    {% for msg in messages %}
+      <div class="message">
+        {% if msg.reply_to %}
+          <div class="reply">↪ {{ msg.reply_to }}</div>
+        {% endif %}
+        <strong>{{ msg.sender }}:</strong> {{ msg.text }}
+        {% if msg.media_urls %}
+          {% for url in msg.media_urls.split(',') %}
+            <br><img src="{{ url }}" onclick="showImageModal('{{ url }}')">
+          {% endfor %}
+        {% endif %}
+        <div class="reply-btn" onclick="setReply('{{ msg.sender }}: {{ msg.text|truncate(50) }}')">↩️ Відповісти</div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <form id="chat-form" class="text-center mt-3">
+    <div id="reply-to" style="display: none;"></div>
+    <input type="text" id="message" class="form-control mb-2" placeholder="Введіть повідомлення...">
+    <input type="file" id="media" class="form-control mb-2" multiple>
+    <button type="submit" class="btn btn-light">📨 Надіслати</button>
+  </form>
+
+  <div class="modal-img" id="image-modal" style="display: none; position:fixed;top:0;left:0;width:100%;height:100%;background:#000d;z-index:999;justify-content:center;align-items:center;">
+    <span style="position:absolute;top:10px;right:20px;font-size:30px;color:#fff;cursor:pointer;" onclick="$('#image-modal').hide()">×</span>
+    <img id="modal-img" src="" style="max-width:90%;max-height:90%;">
+  </div>
+
+  <script>
+    const socket = io();
+    const username = "{{ session['username'] }}";
+    socket.emit("join_shared");
+
+    socket.on("receive_shared", function(data) {
+      let html = `<div class="message">`;
+      if (data.reply_to) html += `<div class="reply">↪ ${data.reply_to}</div>`;
+      html += `<strong>${data.username}:</strong> ${data.message}`;
+      if (data.media_urls && data.media_urls.length > 0) {
+        data.media_urls.forEach(url => {
+          html += `<br><img src="${url}" onclick="showImageModal('${url}')">`;
+        });
+      }
+      html += `<div class="reply-btn" onclick="setReply('${data.username}: ${data.message.substring(0, 50)}')">↩️ Відповісти</div></div>`;
+      $("#chat-box").append(html);
+      $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
+    });
+
+    $("#chat-form").submit(async function(e) {
+      e.preventDefault();
+      const message = $("#message").val().trim();
+      const reply_to = $("#reply-to").data("text") || "";
+      const files = $("#media")[0].files;
+      let media_urls = [];
+
+      if (!message && files.length === 0) return;
+
+      if (files.length > 0) {
+        const formData = new FormData();
+        for (let file of files) formData.append("files[]", file);
+        const res = await fetch("/upload_media_chat", { method: "POST", body: formData });
+        const data = await res.json();
+        media_urls = data.urls || [];
+      }
+
+      socket.emit("send_shared", {
+        message: message,
+        reply_to: reply_to,
+        media_urls: media_urls
+      });
+
+      $("#message").val("");
+      $("#media").val(null);
+      $("#reply-to").hide().data("text", "");
+    });
+
+    function showImageModal(url) {
+      $("#modal-img").attr("src", url);
+      $("#image-modal").css("display", "flex");
+    }
+
+    function setReply(text) {
+      $("#reply-to").text("↪ Відповідь на: " + text).show().data("text", text);
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Чат з {{ username }}</title>
+  <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .menu {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+    .menu a {
+      color: #d9b3ff;
+      text-decoration: none;
+    }
+
+    .menu a:hover {
+      text-shadow: 0 0 10px #ff00ff;
+    }
+
+    .chat-box {
+      background-color: #111;
+      border: 2px solid #9900ff;
+      border-radius: 20px;
+      padding: 20px;
+      max-height: 500px;
+      overflow-y: auto;
+      margin: 30px auto;
+      width: 90%;
+    }
+
+    .message {
+      margin-bottom: 15px;
+    }
+
+    .reply-box {
+      background-color: #222;
+      border-left: 4px solid #9900ff;
+      padding: 5px 10px;
+      margin-bottom: 5px;
+      font-size: 0.9em;
+      color: #aaa;
+    }
+
+    .seen-status {
+      font-size: 0.75em;
+      color: #888;
+      margin-left: 5px;
+    }
+
+    .chat-box img {
+      max-width: 150px;
+      margin-top: 5px;
+      cursor: pointer;
+      border: 1px solid #555;
+      border-radius: 5px;
+    }
+
+    .modal-img {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      flex-direction: column;
+    }
+
+    .modal-img img {
+      max-width: 90%;
+      max-height: 90%;
+    }
+
+    .modal-img a.download {
+      color: #fff;
+      margin-top: 10px;
+      font-size: 16px;
+      text-decoration: underline;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: #ccc;
+      font-size: 30px;
+      cursor: pointer;
+    }
+
+    .form-control, .btn {
+      background-color: #222;
+      color: #fff;
+      border: 1px solid #6600cc;
+    }
+
+    .form-control:focus {
+      border-color: #9900ff;
+      box-shadow: 0 0 5px #9900ff;
+    }
+
+    .btn:hover {
+      background-color: #6600cc;
+    }
+
+    .reply-btn {
+      font-size: 0.8em;
+      cursor: pointer;
+      color: #888;
+      margin-left: 10px;
+    }
+
+    .reply-preview {
+      background-color: #222;
+      padding: 5px 10px;
+      margin-bottom: 5px;
+      border-left: 4px solid #9900ff;
+      font-size: 0.9em;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="menu">
+    <a href="/home">🏠 Головна</a>
+    <a href="/profile">👤 Профіль</a>
+    <a href="/logout">🟥 Вийти</a>
+  </div>
+
+  <h2 class="text-center mt-4">💬 Чат з {{ username }}</h2>
+
+  <div class="chat-box" id="chat-box">
+    {% for msg in messages %}
+      <div class="message">
+        {% if msg[4] %}
+          <div class="reply-box">↪️ {{ msg[4] }}</div>
+        {% endif %}
+        <strong><a href="/profile/{{ msg[0] }}" style="color:#66f;">{{ msg[0] }}</a>:</strong> {{ msg[1] }}
+        {% if msg[2] %}
+          {% for url in msg[2].split(',') %}
+            <br><img src="{{ url }}" onclick="showImageModal('{{ url }}')">
+          {% endfor %}
+        {% endif %}
+        <span class="seen-status">
+          {% if msg[3] == 'seen' %}
+            ✔✔
+          {% else %}
+            ✔
+          {% endif %}
+        </span>
+        <span class="reply-btn" onclick="setReply('{{ msg[1] }}')">↩️ Відповісти</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <form id="chat-form" class="text-center mt-3">
+    <div id="reply-preview" class="reply-preview" style="display:none;"></div>
+    <input type="text" id="message" class="form-control mb-2" placeholder="Введіть повідомлення...">
+    <input type="file" id="media" class="form-control mb-2" multiple>
+    <button type="submit" class="btn btn-light">📨 Надіслати</button>
+  </form>
+
+  <div class="modal-img" id="image-modal">
+    <span class="close-btn" onclick="closeModal()">×</span>
+    <img id="modal-img" src="">
+    <a id="download-link" class="download" href="#" download>⬇️ Завантажити</a>
+  </div>
+
+  <script>
+    const socket = io();
+    const room = "{{ room }}";
+    const receiver = "{{ username }}";
+    let replyTo = "";
+
+    socket.emit('join', { room: room });
+
+    socket.on("receive_message", function(data) {
+      let html = `<div class="message">`;
+      if (data.reply) {
+        html += `<div class="reply-box">↪️ ${data.reply}</div>`;
+      }
+      html += `<strong><a href="/profile/${data.username}" style="color:#66f;">${data.username}</a>:</strong> ${data.message}`;
+      if (data.media_urls && data.media_urls.length > 0) {
+        data.media_urls.forEach(function(url) {
+          html += `<br><img src="${url}" onclick="showImageModal('${url}')">`;
+        });
+      }
+      html += `<span class="seen-status">✔</span>`;
+      html += ` <span class="reply-btn" onclick="setReply('${data.message}')">↩️ Відповісти</span>`;
+      html += `</div>`;
+      $("#chat-box").append(html);
+      $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
+    });
+
+    function setReply(msg) {
+      replyTo = msg;
+      $("#reply-preview").text("↪️ Відповідь: " + msg).show();
+    }
+
+    $("#chat-form").submit(async function(e) {
+      e.preventDefault();
+      const message = $("#message").val();
+      const files = $("#media")[0].files;
+      let media_urls = [];
+
+      if (files.length > 0) {
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++) {
+          formData.append("files[]", files[i]);
+        }
+        const res = await fetch("/upload_media_chat", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        media_urls = data.urls || [];
+      }
+
+      socket.emit("send_message", {
+        room: room,
+        receiver: receiver,
+        message: message,
+        media_urls: media_urls,
+        reply: replyTo
+      });
+
+      $("#message").val("");
+      $("#media").val(null);
+      $("#reply-preview").hide().text("");
+      replyTo = "";
+    });
+
+    function showImageModal(url) {
+      $("#modal-img").attr("src", url);
+      $("#download-link").attr("href", url);
+      $("#image-modal").css("display", "flex");
+    }
+
+    function closeModal() {
+      $("#image-modal").hide();
+    }
+  </script>
+</body>
+</html>

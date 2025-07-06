@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Головна</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --main-color: #9a00ff;
+      --text-color: #e0d9ff;
+    }
+
+    body {
+      background-color: #0a0a0a;
+      color: var(--text-color);
+      font-family: 'Orbitron', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .btn {
+      background-color: transparent;
+      color: var(--text-color);
+      border: 1px solid var(--main-color);
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: var(--main-color);
+      color: #fff;
+      box-shadow: 0 0 15px var(--main-color);
+    }
+
+    .neon-container {
+      max-width: 640px;
+      margin: 60px auto;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--main-color);
+      border-radius: 16px;
+      box-shadow: 0 0 25px var(--main-color);
+      backdrop-filter: blur(10px);
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 2.5rem;
+      margin-bottom: 40px;
+      color: #fff;
+      text-shadow: 0 0 10px var(--main-color);
+    }
+
+    .nav-top {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .nav-top a {
+      color: var(--text-color);
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 18px;
+      margin: 0 15px;
+      transition: 0.3s;
+    }
+
+    .nav-top a:hover {
+      color: var(--main-color);
+      text-shadow: 0 0 10px var(--main-color);
+    }
+
+    .d-grid a {
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="nav-top">
+    <a href="/home">🏠 Головна</a>
+    <a href="/profile">👤 Профіль</a>
+    <a href="/logout">🚪 Вийти</a>
+  </div>
+
+  <div class="container">
+    <div class="neon-container">
+      <h2>Привіт, {{ username }}!</h2>
+
+      <div class="d-grid gap-3 col-10 mx-auto">
+        <a href="/profiles" class="btn">📂 Профілі</a>
+        <a href="/shared_chat" class="btn">💬 Чат</a>
+        <a href="/category/1" class="btn">📁 Категорія 1</a>
+        <a href="/category/2" class="btn">📁 Категорія 2</a>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

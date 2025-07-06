@@ -1,0 +1,30 @@
+{% extends 'admin/layout.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="text-center mb-4">📢 Спільний чат</h2>
+  <div class="list-group">
+    {% for msg in messages %}
+    <div class="list-group-item bg-dark text-white d-flex justify-content-between align-items-start">
+      <div>
+        <strong>{{ msg.sender }}:</strong> {{ msg.text }}
+        {% if msg.media_urls %}
+          <br>
+          {% for url in msg.media_urls.split(',') %}
+            <img src="{{ url }}" alt="image" style="max-width: 100px; margin-top: 5px;">
+          {% endfor %}
+        {% endif %}
+      </div>
+      <div class="dropdown">
+        <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          ⋮
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item text-danger" href="{{ url_for('delete_shared_message', msg_id=msg.id) }}">🗑️ Видалити</a></li>
+        </ul>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

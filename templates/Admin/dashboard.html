@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        .verified { background-color: #d4edda; }
+        .actions a { margin-right: 10px; }
+    </style>
+</head>
+<body>
+    <h2>Admin Panel</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th><th>Name</th><th>Email</th><th>Verified</th><th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr class="{% if user[3] == 1 %}verified{% endif %}">
+                <td>{{ user[0] }}</td>
+                <td>{{ user[1] }}</td>
+                <td>{{ user[2] }}</td>
+                <td>{{ 'Yes' if user[3] == 1 else 'No' }}</td>
+                <td class="actions">
+                    <a href="{{ url_for('admin.verify_user', user_id=user[0]) }}">Verify</a>
+                    <a href="{{ url_for('admin.edit_user', user_id=user[0]) }}">Edit</a>
+                    <a href="{{ url_for('admin.delete_user', user_id=user[0]) }}">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

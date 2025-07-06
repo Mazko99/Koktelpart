@@ -1,0 +1,24 @@
+{% extends 'admin/layout.html' %}
+
+{% block title %}Переписка між {{ user1 }} і {{ user2 }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📨 Переписка: <span class="text-info">{{ user1 }}</span> ↔ <span class="text-warning">{{ user2 }}</span></h2>
+    <a href="{{ url_for('admin.messages') }}" class="btn btn-secondary">← Назад до списку</a>
+  </div>
+
+  {% if messages %}
+    <ul class="list-group">
+      {% for msg in messages %}
+        <li class="list-group-item bg-dark text-light">
+          <strong>{{ msg[0] }}:</strong> {{ msg[1] }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="alert alert-warning">Немає повідомлень між цими користувачами.</div>
+  {% endif %}
+</div>
+{% endblock %}

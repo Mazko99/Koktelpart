@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Додати товар</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .menu-bar {
+      background-color: #111;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .menu-bar a {
+      color: #fff;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .menu-bar a:first-child::before {
+      content: "🏠 ";
+    }
+
+    .menu-bar a:nth-child(2)::before {
+      content: "👤 ";
+    }
+
+    .menu-bar a:nth-child(3)::before {
+      content: "🚪 ";
+    }
+
+    .menu-bar a:hover {
+      color: #ff00cc;
+    }
+
+    .neon-box {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 30px;
+      background-color: #111;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #a600ff, 0 0 30px #a600ff;
+    }
+
+    h2 {
+      text-align: center;
+      color: #ffffff;
+      margin-bottom: 30px;
+    }
+
+    .form-control, .btn, .form-select {
+      background-color: #222;
+      color: #fff;
+      border: 1px solid #444;
+    }
+
+    .form-label {
+      color: #bbb;
+    }
+
+    .btn-primary {
+      background-color: #a600ff;
+      border: none;
+      font-weight: bold;
+    }
+
+    .btn-primary:hover {
+      background-color: #8e00d1;
+    }
+
+    .input-group {
+      display: flex;
+    }
+
+    .input-group select {
+      max-width: 100px;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Верхнє неонове меню -->
+  <div class="menu-bar">
+    <a href="/home">Головна</a>
+    <a href="/profile">Профіль</a>
+    <a href="/logout">Вийти</a>
+  </div>
+
+  <!-- Форма додавання товару -->
+  <div class="neon-box">
+    <h2>Додати товар</h2>
+    <form method="POST" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label for="title" class="form-label">Назва товару</label>
+        <input type="text" class="form-control" id="title" name="title" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="description" class="form-label">Опис</label>
+        <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label for="price" class="form-label">Ціна</label>
+        <div class="input-group">
+          <input type="number" class="form-control" id="price" name="price" required>
+          <select name="currency" class="form-select">
+            <option value="UAH">UAH</option>
+            <option value="USD">USD</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="image" class="form-label">Зображення</label>
+        <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Додати</button>
+    </form>
+  </div>
+
+</body>
+</html>

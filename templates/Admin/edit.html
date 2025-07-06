@@ -1,0 +1,24 @@
+{% extends 'admin/layout.html' %}
+
+{% block title %}Редагування користувача{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2 class="mb-4">Редагувати користувача</h2>
+
+  <form method="post">
+    <div class="mb-3">
+      <label for="username" class="form-label">Ім’я користувача</label>
+      <input type="text" class="form-control" id="username" name="username" required value="{{ user.username }}">
+    </div>
+
+    <div class="mb-3">
+      <label for="email" class="form-label">Email</label>
+      <input type="email" class="form-control" id="email" name="email" required value="{{ user.email }}">
+    </div>
+
+    <button type="submit" class="btn btn-success">💾 Зберегти</button>
+    <a href="{{ url_for('admin.index') }}" class="btn btn-secondary">↩️ Назад</a>
+  </form>
+</div>
+{% endblock %}
