@@ -119,36 +119,39 @@ def virtual_models():
 def real_models():
     if 'username' not in session:
         return redirect('/login')
+
     selected_city = request.args.get('city')
     conn = get_db()
     cursor = conn.cursor()
 
-    # Оновлений запит до списку міст по категоріях
+    # Вибір унікальних міст з кількістю моделей
     cursor.execute("""
         SELECT city, COUNT(*) 
         FROM users 
-        WHERE (category LIKE 'Індивідуалка – %' OR category='Реальні моделі') AND visible=1 
+        WHERE (category='Реальні моделі' OR category='Індивідуалка') AND visible=1 
         GROUP BY city
     """)
     cities_data = cursor.fetchall()
 
+    # Отримання профілів з фільтром по місту (через окреме поле)
     if selected_city:
         cursor.execute("""
             SELECT id, name, avatar, city, is_verified 
             FROM users 
-            WHERE ((category LIKE 'Індивідуалка – %' AND category LIKE ?) OR category='Реальні моделі') 
-              AND visible=1
-        """, (f'%{selected_city}',))
+            WHERE (category='Реальні моделі' OR category='Індивідуалка') 
+              AND visible=1 AND city=?
+        """, (selected_city,))
     else:
         cursor.execute("""
             SELECT id, name, avatar, city, is_verified 
             FROM users 
-            WHERE (category LIKE 'Індивідуалка – %' OR category='Реальні моделі') 
+            WHERE (category='Реальні моделі' OR category='Індивідуалка') 
               AND visible=1
         """)
 
     models = cursor.fetchall()
     conn.close()
+
     return render_template('category_real.html', models=models, cities=cities_data, selected_city=selected_city)
 
 @app.route('/profile')
