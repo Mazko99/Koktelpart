@@ -122,27 +122,31 @@ def real_models():
     selected_city = request.args.get('city')
     conn = get_db()
     cursor = conn.cursor()
+
+    # Оновлений запит до списку міст по категоріях
     cursor.execute("""
         SELECT city, COUNT(*) 
         FROM users 
-        WHERE (category='Реальні моделі' OR category='Індивідуалки') AND visible=1 
+        WHERE (category LIKE 'Індивідуалка – %' OR category='Реальні моделі') AND visible=1 
         GROUP BY city
     """)
     cities_data = cursor.fetchall()
+
     if selected_city:
         cursor.execute("""
             SELECT id, name, avatar, city, is_verified 
             FROM users 
-            WHERE (category='Реальні моделі' OR category='Індивідуалки') 
-              AND city=? AND visible=1
-        """, (selected_city,))
+            WHERE ((category LIKE 'Індивідуалка – %' AND category LIKE ?) OR category='Реальні моделі') 
+              AND visible=1
+        """, (f'%{selected_city}',))
     else:
         cursor.execute("""
             SELECT id, name, avatar, city, is_verified 
             FROM users 
-            WHERE (category='Реальні моделі' OR category='Індивідуалки') 
+            WHERE (category LIKE 'Індивідуалка – %' OR category='Реальні моделі') 
               AND visible=1
         """)
+
     models = cursor.fetchall()
     conn.close()
     return render_template('category_real.html', models=models, cities=cities_data, selected_city=selected_city)
