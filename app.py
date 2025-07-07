@@ -28,22 +28,33 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    message = None
+    error = False
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+
         conn = get_db()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
         user = cursor.fetchone()
         conn.close()
+
         if user:
             session['username'] = username
             if username == "admin" and password == "adminpass":
                 return redirect(url_for('admin_panel'))
             return redirect('/home')
         else:
-            return render_template('login.html', error='Невірний логін або пароль')
-    return render_template('login.html')
+            message = 'Невірний логін або пароль'
+            error = True
+            return render_template('login.html',
+                                   message=message,
+                                   error=error,
+                                   request=request)  # щоб значення залишались
+
+    return render_template('login.html', request=request)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
