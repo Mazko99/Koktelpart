@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, url_for, jsonify
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify, flash
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 from flask_socketio import SocketIO, emit, join_room
@@ -30,17 +30,14 @@ def index():
 def login():
     message = None
     error = False
-
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-
         conn = get_db()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
         user = cursor.fetchone()
         conn.close()
-
         if user:
             session['username'] = username
             if username == "admin" and password == "adminpass":
@@ -49,11 +46,7 @@ def login():
         else:
             message = 'Невірний логін або пароль'
             error = True
-            return render_template('login.html',
-                                   message=message,
-                                   error=error,
-                                   request=request)  # щоб значення залишались
-
+            return render_template('login.html', message=message, error=error, request=request)
     return render_template('login.html', request=request)
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -63,23 +56,19 @@ def register():
         password = request.form['password']
         name = request.form['name']
         default_avatar = 'static/Sample_User_Icon.png'
-
         if 'admin' in username:
             return render_template('register.html', error='❌ Заборонено використовувати "admin" у логіні')
-
         conn = get_db()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM users WHERE username=?", (username,))
         if cursor.fetchone():
             conn.close()
             return render_template('register.html', error='❌ Користувач з таким логіном вже існує')
-        
         cursor.execute("INSERT INTO users (username, password, name, avatar, is_verified) VALUES (?, ?, ?, ?, ?)",
                        (username, password, name, default_avatar, 0))
         conn.commit()
         conn.close()
         return render_template('register.html', success='✅ Акаунт створено! Тепер увійдіть.')
-    
     return render_template('register.html')
 
 @app.route('/logout')
@@ -114,16 +103,14 @@ def virtual_models():
     models = cursor.fetchall()
     conn.close()
     return render_template('virtual_models.html', models=models)
+
 @app.route('/category/2')
 def real_models():
     if 'username' not in session:
         return redirect('/login')
-
     selected_city = request.args.get('city')
     conn = get_db()
     cursor = conn.cursor()
-
-    # Отримати всі унікальні міста з кількістю анкет
     cursor.execute("""
         SELECT city, COUNT(*) 
         FROM users 
@@ -131,7 +118,6 @@ def real_models():
         GROUP BY city
     """)
     cities_data = cursor.fetchall()
-
     if selected_city:
         cursor.execute("""
             SELECT id, name, avatar, city, is_verified 
@@ -147,7 +133,6 @@ def real_models():
             WHERE (category = 'Реальні моделі' OR category LIKE 'Індивідуалка – %') 
               AND visible=1
         """)
-
     models = cursor.fetchall()
     conn.close()
     return render_template('category_real.html', models=models, cities=cities_data, selected_city=selected_city)
@@ -177,50 +162,6 @@ def profile(username):
     user_folder = os.path.join('static', 'uploads', username)
     photos = os.listdir(user_folder) if os.path.exists(user_folder) else []
     return render_template('profile.html', user=user, username=username, photos=photos, products=products)
-
-
-@app.route('/profile', methods=['GET', 'POST'])
-def profile():
-    if 'username' not in session:
-        return redirect('/login')
-
-    conn = get_db()
-    cursor = conn.cursor()
-    username = session['username']
-
-    if request.method == 'POST':
-        # Обробка аватару
-        avatar_file = request.files.get('avatar')
-        if avatar_file and avatar_file.filename:
-            filename = secure_filename(avatar_file.filename)
-            filepath = os.path.join('static', filename)
-            avatar_file.save(filepath)
-            cursor.execute("UPDATE users SET avatar = ? WHERE username = ?", (filepath, username))
-
-        # Опис
-        description = request.form.get('description', '')
-
-        # Категорія і місто (розділити через " – ")
-        full_category = request.form.get('category', '')
-        if ' – ' in full_category:
-            category, city = full_category.split(' – ', 1)
-        else:
-            category = full_category
-            city = ''
-
-        # Оновлення в базі
-        cursor.execute("UPDATE users SET description = ?, category = ?, city = ? WHERE username = ?",
-                       (description, category, city, username))
-
-        conn.commit()
-        flash("Зміни збережено!")
-
-    # Отримання даних користувача
-    cursor.execute("SELECT username, name, avatar, description, category, city FROM users WHERE username = ?", (username,))
-    user = cursor.fetchone()
-    conn.close()
-
-    return render_template('profile.html', user=user)
 
 @app.route('/update_profile', methods=['POST'])
 def update_profile():
@@ -255,7 +196,6 @@ def shared_chat():
     messages = [{"id": row[0], "sender": row[1], "text": row[2], "reply_to": row[3], "media_urls": row[4]} for row in cursor.fetchall()]
     conn.close()
     return render_template("shared_chat.html", username=session['username'], messages=messages)
-
 @app.route('/admin/shared_chat')
 def admin_shared_chat():
     if session.get('username') != 'admin':
@@ -370,10 +310,8 @@ def add_user():
 def edit_user(user_id):
     if session.get('username') != 'admin':
         return redirect('/login')
-
     conn = get_db()
     cursor = conn.cursor()
-
     if request.method == 'POST':
         name = request.form['name']
         password = request.form['password']
@@ -381,11 +319,9 @@ def edit_user(user_id):
         conn.commit()
         conn.close()
         return redirect('/admin')
-
     cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
     user = cursor.fetchone()
     conn.close()
-
     return render_template('admin/edit_user.html', user=user)
 
 @app.route('/admin/delete_user/<int:user_id>')
@@ -434,4 +370,5 @@ def view_messages():
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+
 
