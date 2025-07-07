@@ -292,7 +292,6 @@ def chat_with(username):
 
 @app.route('/admin')
 def admin_panel():
-print("Відкривається admin панель")
     if session.get('username') != 'admin':
         return redirect('/login')
     conn = get_db()
