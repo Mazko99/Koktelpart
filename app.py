@@ -178,24 +178,6 @@ def profile(username):
     photos = os.listdir(user_folder) if os.path.exists(user_folder) else []
     return render_template('profile.html', user=user, username=username, photos=photos, products=products)
 
-@app.route('/profile/<int:user_id>')
-def profile_by_id(user_id):
-    if 'username' not in session:
-        return redirect('/login')
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE id=?", (user_id,))
-    user = cursor.fetchone()
-    if not user:
-        conn.close()
-        return "Користувача не знайдено", 404
-    username = user[1]
-    cursor.execute("SELECT id, title, description, price, image_filename, currency FROM products WHERE user_id=?", (user_id,))
-    products = cursor.fetchall()
-    conn.close()
-    user_folder = os.path.join('static', 'uploads', username)
-    photos = os.listdir(user_folder) if os.path.exists(user_folder) else []
-    return render_template('profile.html', user=user, username=username, photos=photos, products=products)
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
