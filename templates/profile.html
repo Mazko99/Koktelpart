@@ -92,6 +92,14 @@
       color: #000;
       box-shadow: 0 0 15px #d9b3ff;
     }
+    .avatar-vertical {
+      width: 180px;
+      height: 270px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid #8000ff;
+      box-shadow: 0 0 15px #8000ff88;
+    }
   </style>
 </head>
 <body>
@@ -102,7 +110,6 @@
 </div>
 
 <div class="container container-box">
-
   {% with messages = get_flashed_messages() %}
     {% if messages %}
       <div class="alert alert-success alert-dismissible fade show" role="alert" id="flash-message">
@@ -138,7 +145,7 @@
 
     <div class="row">
       <div class="col-md-3 text-center">
-        <img src="/{{ user[4] or 'static/Sample_User_Icon.png' }}" class="img-thumbnail mb-2" style="max-width: 120px;">
+        <img src="/{{ user[4] or 'static/Sample_User_Icon.png' }}" class="avatar-vertical mb-2">
         <input type="file" name="avatar" class="form-control mt-2">
       </div>
       <div class="col-md-9">
@@ -239,3 +246,4 @@
 </div>
 </body>
 </html>
+

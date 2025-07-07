@@ -56,11 +56,15 @@
       transform: translateY(-4px);
     }
 
-    .card-img-top {
+    .avatar-vertical {
+      width: 180px;
+      height: 270px;
       object-fit: cover;
-      height: 220px;
-      border-top-left-radius: 12px;
-      border-top-right-radius: 12px;
+      border-radius: 10px;
+      border: 2px solid #9a00ff;
+      box-shadow: 0 0 12px #9a00ff66;
+      margin: 10px auto 0;
+      display: block;
     }
 
     .verified-label {
@@ -80,8 +84,8 @@
       color: #ffffff;
       text-shadow: 0 0 4px #9a00ff55;
       margin-bottom: 5px;
-      margin-left: 12px; /* зсув вправо */
-      transform: translateY(-3px); /* підняти вгору */
+      margin-left: 12px;
+      transform: translateY(-3px);
     }
 
     .btn-outline-light {
@@ -124,8 +128,8 @@
       {% for username, name, avatar, is_verified in users %}
         <div class="col-md-4 mb-4">
           <div class="card h-100 {% if is_verified == 1 %}verified-border{% endif %}">
-            <img src="/{{ avatar or 'static/Sample_User_Icon.png' }}" class="card-img-top" alt="Avatar">
-            <div class="card-body">
+            <img src="/{{ avatar or 'static/Sample_User_Icon.png' }}" class="avatar-vertical" alt="Avatar">
+            <div class="card-body text-center">
               <h5 class="card-title">
                 {{ name }}
                 {% if is_verified == 1 %}
