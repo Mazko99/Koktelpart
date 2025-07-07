@@ -380,9 +380,6 @@ def view_messages():
     conn.close()
     return render_template('admin/messages.html', messages=messages)
 
-if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
-
 @app.before_first_request
 def create_admin_if_not_exists():
     conn = get_db()
@@ -393,4 +390,8 @@ def create_admin_if_not_exists():
         c.execute("INSERT INTO users (username, password, name, avatar, is_verified) VALUES (?, ?, ?, ?, ?)",
                   ('admin', 'admin123', 'Адміністратор', 'static/Sample_User_Icon.png', 1))
         conn.commit()
-    conn.close()
+        conn.close()
+
+if __name__ == '__main__':
+    socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+
