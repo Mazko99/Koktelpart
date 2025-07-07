@@ -311,12 +311,12 @@ def add_user():
         password = request.form['password']
         name = request.form['name']
         conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO users (username, email, password, name, avatar, is_verified) VALUES (?, ?, ?, ?, ?, ?)",
-                       (username, email, password, name, 'static/Sample_User_Icon.png', 0))
+        c = conn.cursor()
+        c.execute("INSERT INTO users (username, email, password, name, avatar, is_verified) VALUES (?, ?, ?, ?, ?, ?)",
+                  (username, email, password, name, 'static/Sample_User_Icon.png', 0))
         conn.commit()
         conn.close()
-        return redirect(url_for('admin_panel'))
+        return redirect('/admin')
     return render_template('admin/add_user.html')
 
 @app.route('/admin/edit_user/<int:user_id>', methods=['GET', 'POST'])
