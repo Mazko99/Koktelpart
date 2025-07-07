@@ -3,6 +3,11 @@
 <div class="container mt-5">
   <div class="neon-box mx-auto">
     <h2 class="mb-4 text-center">Реєстрація</h2>
+    {% if error %}
+      <div class="alert alert-danger text-center">{{ error }}</div>
+    {% elif success %}
+      <div class="alert alert-success text-center">{{ success }}</div>
+    {% endif %}
     <form method="POST">
       <div class="mb-3">
         <label class="form-label">Ім’я</label>
@@ -31,7 +36,7 @@
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 20px #00f7ff44, 0 0 40px #ff00d444;
+    box-shadow: 0 0 30px #00f7ff88, 0 0 60px #ff00d488;
     backdrop-filter: blur(10px);
   }
 
@@ -54,15 +59,16 @@
   }
 
   .btn-outline-light {
-    background: linear-gradient(90deg, #00f7ff, #ff00d4);
-    border: none;
-    color: #fff;
-    font-weight: bold;
+    background: transparent;
+    border: 1px solid #00f7ff;
+    color: #00f7ff;
     transition: 0.3s;
   }
 
   .btn-outline-light:hover {
-    box-shadow: 0 0 10px #00f7ffaa, 0 0 20px #ff00d4aa;
+    background: #ff00d4;
+    color: #fff;
+    box-shadow: 0 0 10px #ff00d4aa;
   }
 
   .btn-link {

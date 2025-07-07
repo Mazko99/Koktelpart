@@ -59,21 +59,27 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
+        username = request.form['username'].lower()
         password = request.form['password']
         name = request.form['name']
         default_avatar = 'static/Sample_User_Icon.png'
+
+        if 'admin' in username:
+            return render_template('register.html', error='❌ Заборонено використовувати "admin" у логіні')
+
         conn = get_db()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM users WHERE username=?", (username,))
         if cursor.fetchone():
             conn.close()
-            return render_template('register.html', error='Користувач вже існує.')
+            return render_template('register.html', error='❌ Користувач з таким логіном вже існує')
+        
         cursor.execute("INSERT INTO users (username, password, name, avatar, is_verified) VALUES (?, ?, ?, ?, ?)",
                        (username, password, name, default_avatar, 0))
         conn.commit()
         conn.close()
-        return redirect('/login')
+        return render_template('register.html', success='✅ Акаунт створено! Тепер увійдіть.')
+    
     return render_template('register.html')
 
 @app.route('/logout')
