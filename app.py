@@ -323,18 +323,22 @@ def add_user():
 def edit_user(user_id):
     if session.get('username') != 'admin':
         return redirect('/login')
+
     conn = get_db()
     cursor = conn.cursor()
+
     if request.method == 'POST':
         name = request.form['name']
-        city = request.form['city']
-        cursor.execute("UPDATE users SET name=?, city=? WHERE id=?", (name, city, user_id))
+        password = request.form['password']
+        cursor.execute("UPDATE users SET name = ?, password = ? WHERE id = ?", (name, password, user_id))
         conn.commit()
         conn.close()
-        return redirect(url_for('admin_panel'))
-    cursor.execute("SELECT * FROM users WHERE id=?", (user_id,))
+        return redirect('/admin')
+
+    cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
     user = cursor.fetchone()
     conn.close()
+
     return render_template('admin/edit_user.html', user=user)
 
 @app.route('/admin/delete_user/<int:user_id>')
