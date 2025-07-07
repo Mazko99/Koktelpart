@@ -291,7 +291,7 @@ def chat_with(username):
     return render_template('private_chat.html', username=session['username'], target_username=username)
 
 @app.route('/admin')
-def admin_panel():
+def admin_panel(print("Відкривається admin панель")):
     if session.get('username') != 'admin':
         return redirect('/login')
     conn = get_db()
