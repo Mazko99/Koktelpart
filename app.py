@@ -38,8 +38,8 @@ def login():
         conn.close()
         if user:
             session['username'] = username
-            if username == "admin" and password == "admin123":
-                return redirect('/admin')
+            if username == "admin" and password == "adminpass":
+                return redirect(url_for('admin_panel'))
             return redirect('/home')
         else:
             return render_template('login.html', error='Невірний логін або пароль')
@@ -292,7 +292,6 @@ def chat_with(username):
 
 @app.route('/admin')
 def admin_panel():
-    print("Відкривається admin панель")
     if session.get('username') != 'admin':
         return redirect('/login')
     conn = get_db()
@@ -380,18 +379,6 @@ def view_messages():
     messages = cursor.fetchall()
     conn.close()
     return render_template('admin/messages.html', messages=messages)
-
-@app.before_first_request
-def create_admin_if_not_exists():
-    conn = get_db()
-    c = conn.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT, name TEXT, avatar TEXT, is_verified INTEGER DEFAULT 0, last_seen TEXT)")
-    c.execute("SELECT * FROM users WHERE username = 'admin'")
-    if not c.fetchone():
-        c.execute("INSERT INTO users (username, password, name, avatar, is_verified) VALUES (?, ?, ?, ?, ?)",
-                  ('admin', 'admin123', 'Адміністратор', 'static/Sample_User_Icon.png', 1))
-        conn.commit()
-        conn.close()
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
