@@ -307,15 +307,13 @@ def add_user():
         return redirect('/login')
     if request.method == 'POST':
         username = request.form['username']
+        email = request.form['email']
         password = request.form['password']
         name = request.form['name']
-        email = request.form['email']
         conn = get_db()
         cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO users (username, password, name, email, avatar, is_verified)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (username, password, name, email, 'static/Sample_User_Icon.png', 0))
+        cursor.execute("INSERT INTO users (username, email, password, name, avatar, is_verified) VALUES (?, ?, ?, ?, ?, ?)",
+                       (username, email, password, name, 'static/Sample_User_Icon.png', 0))
         conn.commit()
         conn.close()
         return redirect(url_for('admin_panel'))
