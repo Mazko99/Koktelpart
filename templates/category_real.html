@@ -1,156 +1,156 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <title>Реальні моделі</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #000;
-            color: #fff;
-            font-family: 'Orbitron', sans-serif;
-        }
+  <meta charset="UTF-8">
+  <title>Реальні моделі</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+    }
 
-        .menu {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-top: 20px;
-            font-size: 18px;
-        }
+    .menu {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 20px;
+      font-size: 18px;
+    }
 
-        .menu a {
-            color: #d9b3ff;
-            text-decoration: none;
-        }
+    .menu a {
+      color: #d9b3ff;
+      text-decoration: none;
+    }
 
-        .menu a:hover {
-            text-shadow: 0 0 10px #ff00ff;
-        }
+    .menu a:hover {
+      text-shadow: 0 0 10px #ff00ff;
+    }
 
-        h2 {
-            text-align: center;
-            margin-top: 30px;
-            color: #d9b3ff;
-            text-shadow: 0 0 10px #9900ff;
-        }
+    h2 {
+      text-align: center;
+      margin-top: 30px;
+      color: #d9b3ff;
+      text-shadow: 0 0 10px #9900ff;
+    }
 
-        .city-scroll {
-            display: flex;
-            overflow-x: auto;
-            gap: 15px;
-            padding: 10px 20px;
-            margin: 20px 0;
-            scrollbar-color: #6600cc #000;
-        }
+    .city-scroll {
+      display: flex;
+      overflow-x: auto;
+      gap: 15px;
+      padding: 10px 20px;
+      margin: 20px 0;
+      scrollbar-color: #6600cc #000;
+    }
 
-        .city-scroll::-webkit-scrollbar {
-            height: 8px;
-        }
+    .city-scroll::-webkit-scrollbar {
+      height: 8px;
+    }
 
-        .city-scroll::-webkit-scrollbar-thumb {
-            background: #6600cc;
-            border-radius: 4px;
-        }
+    .city-scroll::-webkit-scrollbar-thumb {
+      background: #6600cc;
+      border-radius: 4px;
+    }
 
-        .city-button {
-            flex: 0 0 auto;
-            padding: 8px 16px;
-            border: 1px solid #6600cc;
-            border-radius: 20px;
-            background-color: #111;
-            color: #fff;
-            box-shadow: 0 0 8px #9900ff;
-            cursor: pointer;
-            text-decoration: none;
-            transition: 0.3s;
-        }
+    .city-button {
+      flex: 0 0 auto;
+      padding: 8px 16px;
+      border: 1px solid #6600cc;
+      border-radius: 20px;
+      background-color: #111;
+      color: #fff;
+      box-shadow: 0 0 8px #9900ff;
+      cursor: pointer;
+      text-decoration: none;
+      transition: 0.3s;
+    }
 
-        .city-button:hover {
-            background-color: #220033;
-            transform: scale(1.05);
-        }
+    .city-button:hover {
+      background-color: #220033;
+      transform: scale(1.05);
+    }
 
-        .city-button.active {
-            background-color: #6600cc;
-            color: #fff;
-            font-weight: bold;
-        }
+    .city-button.active {
+      background-color: #6600cc;
+      color: #fff;
+      font-weight: bold;
+    }
 
-        .card-box {
-            background-color: #111;
-            border: 2px solid #6600cc;
-            border-radius: 20px;
-            padding: 20px;
-            margin: 20px;
-            box-shadow: 0 0 25px #9900ff;
-            text-align: center;
-            transition: 0.3s;
-        }
+    .card-box {
+      background-color: #111;
+      border: 2px solid #6600cc;
+      border-radius: 20px;
+      padding: 20px;
+      margin: 20px;
+      box-shadow: 0 0 25px #9900ff;
+      text-align: center;
+      transition: 0.3s;
+    }
 
-        .card-box:hover {
-            box-shadow: 0 0 35px #ff00ff;
-            transform: scale(1.02);
-        }
+    .card-box:hover {
+      box-shadow: 0 0 35px #ff00ff;
+      transform: scale(1.02);
+    }
 
-        .card-box img {
-            max-width: 100%;
-            border-radius: 15px;
-            max-height: 300px;
-        }
+    .card-box img {
+      max-width: 100%;
+      border-radius: 15px;
+      max-height: 300px;
+    }
 
-        .btn-profile {
-            margin-top: 10px;
-            padding: 8px 15px;
-            background-color: transparent;
-            color: #fff;
-            border: 1px solid #9900ff;
-            border-radius: 10px;
-            text-decoration: none;
-            transition: 0.3s;
-        }
+    .btn-profile {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background-color: transparent;
+      color: #fff;
+      border: 1px solid #9900ff;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
 
-        .btn-profile:hover {
-            background-color: #220033;
-            transform: scale(1.05);
-        }
-    </style>
+    .btn-profile:hover {
+      background-color: #220033;
+      transform: scale(1.05);
+    }
+  </style>
 </head>
 <body>
 
 <div class="menu">
-    <a href="/home">🏠 Головна</a>
-    <a href="/chat">💬 Спільний чат</a>
-    <a href="/profile">👤 Профіль</a>
-    <a href="/logout">📕 Вийти</a>
+  <a href="/home">🏠 Головна</a>
+  <a href="/shared_chat">💬 Спільний чат</a>
+  <a href="/profile">👤 Профіль</a>
+  <a href="/logout">📕 Вийти</a>
 </div>
 
 <h2>Реальні моделі</h2>
 
 <div class="city-scroll">
-    <a href="/category/2" class="city-button {% if not selected_city %}active{% endif %}">Усі міста</a>
-    {% for city, count in cities %}
-        {% if city %}
-        <a href="/category/2?city={{ city }}" class="city-button {% if city == selected_city %}active{% endif %}">
-            {{ city }} ({{ count }})
-        </a>
-        {% endif %}
-    {% endfor %}
+  <a href="/category/2" class="city-button {% if not selected_city %}active{% endif %}">Усі міста</a>
+  {% for city, count in cities %}
+    {% if city %}
+      <a href="/category/2?city={{ city }}" class="city-button {% if selected_city == city %}active{% endif %}">
+        {{ city }} ({{ count }})
+      </a>
+    {% endif %}
+  {% endfor %}
 </div>
 
 <div class="container">
-    <div class="row">
-        {% for model in models %}
-            <div class="col-md-4">
-                <div class="card-box">
-                    <img src="/{{ model[2] }}" alt="{{ model[1] }}">
-                    <h5>{{ model[1] }}</h5>
-                    <p>{{ model[3] }}</p>
-                    <a href="/profile/{{ model[0] }}" class="btn-profile">Переглянути профіль</a>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
+  <div class="row">
+    {% for model in models %}
+      <div class="col-md-4">
+        <div class="card-box">
+          <img src="/{{ model[2] }}" alt="{{ model[1] }}">
+          <h5>{{ model[1] }}</h5>
+          <p>{{ model[3] }}</p>
+          <a href="/profile/{{ model[0] }}" class="btn-profile">Переглянути профіль</a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
 </div>
 
 </body>
