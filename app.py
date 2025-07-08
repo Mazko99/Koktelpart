@@ -124,29 +124,34 @@ def real_models():
     conn = get_db()
     cursor = conn.cursor()
 
-    # Отримати список міст з кількістю профілів
+    # Отримати список міст з поля category
     cursor.execute("""
-        SELECT TRIM(city), COUNT(*) 
-        FROM users 
-        WHERE (category = 'Реальні моделі' OR category LIKE 'Індивідуалка – %') 
-              AND visible=1 AND city IS NOT NULL AND city != ''
-        GROUP BY TRIM(city)
+        SELECT TRIM(SUBSTR(category, INSTR(category, '–') + 1)) as city, COUNT(*)
+        FROM users
+        WHERE (category = 'Реальні моделі' OR category LIKE 'Індивіалка – %')
+              AND visible = 1
+        GROUP BY city
     """)
     cities_data = cursor.fetchall()
 
     if selected_city:
         cursor.execute("""
-            SELECT id, name, avatar, TRIM(city), is_verified 
-            FROM users 
-            WHERE (category = 'Реальні моделі' OR category LIKE 'Індивідуалка – %') 
-              AND visible=1 AND LOWER(TRIM(city)) = LOWER(?)
+            SELECT id, name, avatar,
+                   TRIM(SUBSTR(category, INSTR(category, '–') + 1)) as city,
+                   is_verified
+            FROM users
+            WHERE (category = 'Реальні моделі' OR category LIKE 'Індивіалка – %')
+              AND visible = 1
+              AND LOWER(TRIM(SUBSTR(category, INSTR(category, '–') + 1))) = LOWER(?)
         """, (selected_city,))
     else:
         cursor.execute("""
-            SELECT id, name, avatar, TRIM(city), is_verified 
-            FROM users 
-            WHERE (category = 'Реальні моделі' OR category LIKE 'Індивідуалка – %') 
-              AND visible=1
+            SELECT id, name, avatar,
+                   TRIM(SUBSTR(category, INSTR(category, '–') + 1)) as city,
+                   is_verified
+            FROM users
+            WHERE (category = 'Реальні моделі' OR category LIKE 'Індивіалка – %')
+              AND visible = 1
         """)
 
     models = cursor.fetchall()
