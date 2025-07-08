@@ -212,7 +212,7 @@ def update_profile():
 
     # Якщо категорія — індивідуалки, то додаємо місто до категорії
     if category == 'Індивідуалки' and city:
-        full_category = f"Індивіалка – {city}"
+        full_category = f"Індивідуалки – {city}"
     else:
         full_category = category
 
