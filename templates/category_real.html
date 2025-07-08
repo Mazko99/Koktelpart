@@ -127,6 +127,14 @@
 
 <h2>Реальні моделі</h2>
 
+<!-- Вивід активного міста -->
+{% if selected_city %}
+  <p style="text-align:center; color:#ff00ff; font-weight:bold;">
+    🔍 Обране місто: {{ selected_city }}
+  </p>
+{% endif %}
+
+<!-- Список міст -->
 <div class="city-scroll">
   <a href="/category/2" class="city-button {% if not selected_city %}active{% endif %}">Усі міста</a>
   {% for city, count in cities %}
@@ -138,6 +146,7 @@
   {% endfor %}
 </div>
 
+<!-- Список моделей -->
 <div class="container">
   <div class="row">
     {% for model in models %}
