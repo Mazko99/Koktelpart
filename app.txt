@@ -557,44 +557,6 @@ def unverify_user(user_id):
     conn.close()
     return redirect(url_for('admin_panel'))
 
-@app.route('/admin/chats')
-def admin_chats():
-    if session.get('username') != 'admin':
-        return redirect('/login')
-
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT DISTINCT 
-            CASE WHEN sender < receiver THEN sender ELSE receiver END AS user1,
-            CASE WHEN sender > receiver THEN sender ELSE receiver END AS user2
-        FROM messages
-        WHERE sender != receiver
-    """)
-    pairs = cursor.fetchall()
-    conn.close()
-
-    return render_template("admin_chats.html", pairs=pairs)
-
-@app.route('/admin/chat/<user1>/<user2>')
-def admin_view_chat(user1, user2):
-    if session.get('username') != 'admin':
-        return redirect('/login')
-
-    conn = get_db()
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT sender, content, media_urls, status, reply_to
-        FROM messages
-        WHERE (sender=? AND receiver=?) OR (sender=? AND receiver=?)
-        ORDER BY id ASC
-    """, (user1, user2, user2, user1))
-    messages = cursor.fetchall()
-    conn.close()
-
-    return render_template("admin_view_chat.html", user1=user1, user2=user2, messages=messages)
-
 @app.route('/admin/messages')
 def view_messages():
     if session.get('username') != 'admin':

@@ -6,14 +6,26 @@
 <div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>📨 Переписка: <span class="text-info">{{ user1 }}</span> ↔ <span class="text-warning">{{ user2 }}</span></h2>
-    <a href="{{ url_for('admin.messages') }}" class="btn btn-secondary">← Назад до списку</a>
+    <a href="{{ url_for('admin_chats') }}" class="btn btn-secondary">← Назад до списку</a>
   </div>
 
   {% if messages %}
     <ul class="list-group">
       {% for msg in messages %}
         <li class="list-group-item bg-dark text-light">
-          <strong>{{ msg[0] }}:</strong> {{ msg[1] }}
+          <div><strong>{{ msg['sender'] }}</strong>: {{ msg['content'] }}</div>
+          
+          {% if msg['media_urls'] %}
+            <div class="mt-1">
+              <em>📎 <a href="{{ msg['media_urls'] }}" target="_blank" class="text-info">медіа</a></em>
+            </div>
+          {% endif %}
+
+          {% if msg['reply_to'] %}
+            <div class="mt-1">
+              <small>💬 у відповідь на: <span class="text-warning">{{ msg['reply_to'] }}</span></small>
+            </div>
+          {% endif %}
         </li>
       {% endfor %}
     </ul>
