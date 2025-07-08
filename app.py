@@ -236,6 +236,23 @@ def update_profile():
 
     return redirect(f"/profile/{username}")
 
+@app.route('/upload_media', methods=['POST'])
+def upload_media():
+    if 'username' not in session:
+        return redirect('/login')
+
+    username = session['username']
+    user_folder = os.path.join('static', 'uploads', username)
+    os.makedirs(user_folder, exist_ok=True)
+
+    uploaded_files = request.files.getlist('media_files')
+    for file in uploaded_files:
+        if file and file.filename:
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(user_folder, filename))
+
+    return redirect(f"/profile/{username}")
+
 
 @app.route('/admin/shared_chat')
 def admin_shared_chat():
