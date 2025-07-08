@@ -152,11 +152,49 @@ def real_models():
     conn.close()
     return render_template('category_real.html', models=models, cities=cities_data, selected_city=selected_city)
 
-@app.route('/profile')
-def my_profile():
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
     if 'username' not in session:
         return redirect('/login')
-    return redirect(f"/profile/{session['username']}")
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    username = session['username']
+
+    if request.method == 'POST':
+        # Обробка аватару
+        avatar_file = request.files.get('avatar')
+        if avatar_file and avatar_file.filename:
+            filename = secure_filename(avatar_file.filename)
+            filepath = os.path.join('static', filename)
+            avatar_file.save(filepath)
+            cursor.execute("UPDATE users SET avatar = ? WHERE username = ?", (filepath, username))
+
+        # Опис
+        description = request.form.get('description', '')
+
+        # Категорія і місто (розділити через " – ")
+        full_category = request.form.get('category', '')
+        if ' – ' in full_category:
+            category, city = full_category.split(' – ', 1)
+        else:
+            category = full_category
+            city = ''
+
+        # Оновлення в базі
+        cursor.execute("UPDATE users SET description = ?, category = ?, city = ? WHERE username = ?",
+                       (description, category, city, username))
+
+        conn.commit()
+        flash("Зміни збережено!")
+
+    # Отримання даних користувача
+    cursor.execute("SELECT username, name, avatar, description, category, city FROM users WHERE username = ?", (username,))
+    user = cursor.fetchone()
+    conn.close()
+
+    return render_template('profile.html', user=user)
 
 @app.route('/profile/<username>')
 def profile(username):
