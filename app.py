@@ -10,11 +10,15 @@ app.secret_key = 'supersecretkey123'
 app.permanent_session_lifetime = timedelta(days=7)
 socketio = SocketIO(app)
 
+import os
+import sqlite3
+
 def get_db():
-    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data/users.db')
+    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance', 'users.db')
     if not os.path.exists(db_path):
-        raise FileNotFoundError("❌ База users.db не знайдена! Не створюємо нову автоматично.")
+        raise FileNotFoundError("❌ База даних users.db не знайдена в instance/!")
     return sqlite3.connect(db_path)
+
 
 @app.before_request
 def update_last_seen():
