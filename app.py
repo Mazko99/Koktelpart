@@ -124,26 +124,26 @@ def real_models():
     conn = get_db()
     cursor = conn.cursor()
 
-    # Отримати всі унікальні міста з кількістю анкет
+    # Отримати список міст з кількістю профілів
     cursor.execute("""
-        SELECT city, COUNT(*) 
+        SELECT TRIM(city), COUNT(*) 
         FROM users 
-        WHERE (category = 'Реальні моделі' OR category LIKE 'Індивідуалка – %') AND visible=1 
-        GROUP BY city
+        WHERE (category = 'Реальні моделі' OR category LIKE 'Індивідуалка – %') 
+              AND visible=1 AND city IS NOT NULL AND city != ''
+        GROUP BY TRIM(city)
     """)
     cities_data = cursor.fetchall()
 
     if selected_city:
         cursor.execute("""
-            SELECT id, name, avatar, city, is_verified 
+            SELECT id, name, avatar, TRIM(city), is_verified 
             FROM users 
-            WHERE ( (category = 'Реальні моделі' OR category LIKE 'Індивідуалка – %') 
-                    AND visible=1 
-                    AND city = ? )
+            WHERE (category = 'Реальні моделі' OR category LIKE 'Індивідуалка – %') 
+              AND visible=1 AND LOWER(TRIM(city)) = LOWER(?)
         """, (selected_city,))
     else:
         cursor.execute("""
-            SELECT id, name, avatar, city, is_verified 
+            SELECT id, name, avatar, TRIM(city), is_verified 
             FROM users 
             WHERE (category = 'Реальні моделі' OR category LIKE 'Індивідуалка – %') 
               AND visible=1
