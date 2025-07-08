@@ -416,8 +416,30 @@ def chat_with(username):
     if username == session['username']:
         return redirect('/profile')
 
+    # Функція для додавання відсутніх колонок
+    def add_missing_columns():
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(messages)")
+        existing_columns = [col[1] for col in cursor.fetchall()]
+        if "media_urls" not in existing_columns:
+            cursor.execute("ALTER TABLE messages ADD COLUMN media_urls TEXT")
+        if "status" not in existing_columns:
+            cursor.execute("ALTER TABLE messages ADD COLUMN status TEXT")
+        if "reply" not in existing_columns:
+            cursor.execute("ALTER TABLE messages ADD COLUMN reply TEXT")
+        if "timestamp" not in existing_columns:
+            cursor.execute("ALTER TABLE messages ADD COLUMN timestamp TEXT")
+        conn.commit()
+        conn.close()
+
+    # Додаємо відсутні колонки, якщо треба
+    add_missing_columns()
+
     conn = get_db()
     cursor = conn.cursor()
+
+    # Перевірка чи існує користувач
     cursor.execute("SELECT * FROM users WHERE username=?", (username,))
     user = cursor.fetchone()
     if not user:
@@ -442,7 +464,6 @@ def chat_with(username):
                            my_username=session['username'],
                            messages=messages,
                            room=room)
-
 
 @app.route('/admin')
 def admin_panel():
