@@ -124,29 +124,28 @@ def real_models():
     conn = get_db()
     cursor = conn.cursor()
 
-    # Отримати список міст з таблиці
+    # Отримати список міст з поля `city`
     cursor.execute("""
         SELECT TRIM(city), COUNT(*) 
         FROM users 
-        WHERE category = 'Індивіалки' AND visible = 1 AND city IS NOT NULL AND city != ''
+        WHERE category = 'Індивідуалки' AND visible=1 AND city IS NOT NULL AND city != ''
         GROUP BY TRIM(city)
     """)
     cities_data = cursor.fetchall()
 
     if selected_city:
         cursor.execute("""
-            SELECT id, name, avatar, city, is_verified 
+            SELECT id, name, avatar, TRIM(city), is_verified 
             FROM users 
-            WHERE category = 'Індивіалки' 
-              AND visible = 1 
-              AND LOWER(TRIM(city)) = LOWER(?)
+            WHERE category = 'Індивідуалки' 
+              AND visible=1 AND LOWER(TRIM(city)) = LOWER(?)
         """, (selected_city,))
     else:
         cursor.execute("""
-            SELECT id, name, avatar, city, is_verified 
+            SELECT id, name, avatar, TRIM(city), is_verified 
             FROM users 
-            WHERE category = 'Індивіалки' 
-              AND visible = 1
+            WHERE category = 'Індивідуалки' 
+              AND visible=1
         """)
 
     models = cursor.fetchall()
@@ -211,6 +210,12 @@ def update_profile():
     visible = int(request.form.get('visible', 1))
     avatar_file = request.files.get('avatar')
 
+    # Якщо категорія — індивідуалки, то додаємо місто до категорії
+    if category == 'Індивідуалки' and city:
+        full_category = f"Індивіалка – {city}"
+    else:
+        full_category = category
+
     conn = get_db()
     cursor = conn.cursor()
 
@@ -218,7 +223,7 @@ def update_profile():
     cursor.execute("""
         UPDATE users SET description = ?, category = ?, city = ?, visible = ? 
         WHERE username = ?
-    """, (description, category, city, visible, username))
+    """, (description, full_category, city, visible, username))
 
     # Якщо користувач завантажив аватар
     if avatar_file and avatar_file.filename:
