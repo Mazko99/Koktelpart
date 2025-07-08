@@ -343,6 +343,12 @@ def delete_product():
 
     return redirect(f"/profile/{session['username']}")
 
+@app.route('/shared_chat')
+def shared_chat():
+    if not session.get('username'):
+        return redirect('/login')
+    return render_template('shared_chat.html', username=session['username'])
+
 
 @app.route('/admin/shared_chat')
 def admin_shared_chat():
