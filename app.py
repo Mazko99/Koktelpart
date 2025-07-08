@@ -11,15 +11,23 @@ app.secret_key = 'supersecretkey123'
 app.permanent_session_lifetime = timedelta(days=7)
 socketio = SocketIO(app)
 
-import os
-import sqlite3
-
 def get_db():
     db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'users.db')
     if not os.path.exists(db_path):
         raise FileNotFoundError("❌ База users.db не знайдена в папці data/")
     return sqlite3.connect(db_path)
 
+def ensure_message_columns():
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("PRAGMA table_info(messages)")
+    columns = [col[1] for col in cursor.fetchall()]
+    if "reply_to" not in columns:
+        cursor.execute("ALTER TABLE messages ADD COLUMN reply_to TEXT")
+    conn.commit()
+    conn.close()
+
+ensure_message_columns()
 
 
 @app.before_request
