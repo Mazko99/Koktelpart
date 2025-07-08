@@ -311,6 +311,33 @@ def add_product():
 
     return render_template('add_product.html')
 
+@app.route('/delete_product', methods=['POST'])
+def delete_product():
+    if 'username' not in session:
+        return redirect('/login')
+
+    product_id = request.form.get('product_id')
+    if not product_id:
+        return "Missing product ID", 400
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # Отримуємо ім'я файлу зображення, щоб видалити його
+    cursor.execute("SELECT image_filename FROM products WHERE id = ?", (product_id,))
+    row = cursor.fetchone()
+    if row and row[0]:
+        try:
+            os.remove(row[0])
+        except:
+            pass
+
+    cursor.execute("DELETE FROM products WHERE id = ?", (product_id,))
+    conn.commit()
+    conn.close()
+
+    return redirect(f"/profile/{session['username']}")
+
 
 @app.route('/admin/shared_chat')
 def admin_shared_chat():
