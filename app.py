@@ -115,6 +115,7 @@ def virtual_models():
     models = cursor.fetchall()
     conn.close()
     return render_template('virtual_models.html', models=models)
+
 @app.route('/category/2')
 def real_models():
     if 'username' not in session:
@@ -124,11 +125,11 @@ def real_models():
     conn = get_db()
     cursor = conn.cursor()
 
-    # Отримати список міст з поля `city`
+    # Отримати список міст
     cursor.execute("""
         SELECT TRIM(city), COUNT(*) 
         FROM users 
-        WHERE category = 'Індивідуалки' AND visible=1 AND city IS NOT NULL AND city != ''
+        WHERE category LIKE 'Індивідуалки%' AND visible=1 AND city IS NOT NULL AND city != ''
         GROUP BY TRIM(city)
     """)
     cities_data = cursor.fetchall()
@@ -137,20 +138,21 @@ def real_models():
         cursor.execute("""
             SELECT id, name, avatar, TRIM(city), is_verified 
             FROM users 
-            WHERE category = 'Індивідуалки' 
+            WHERE category LIKE 'Індивідуалки%' 
               AND visible=1 AND LOWER(TRIM(city)) = LOWER(?)
         """, (selected_city,))
     else:
         cursor.execute("""
             SELECT id, name, avatar, TRIM(city), is_verified 
             FROM users 
-            WHERE category = 'Індивідуалки' 
+            WHERE category LIKE 'Індивідуалки%' 
               AND visible=1
         """)
 
     models = cursor.fetchall()
     conn.close()
     return render_template('category_real.html', models=models, cities=cities_data, selected_city=selected_city)
+
 
 @app.route('/profile')
 def my_profile():
@@ -197,7 +199,6 @@ def profile(username):
     photos = os.listdir(user_folder) if os.path.exists(user_folder) else []
     return render_template('profile.html', user=user, username=username, photos=photos, products=products)
 
-
 @app.route('/update_profile', methods=['POST'])
 def update_profile():
     if 'username' not in session:
@@ -219,13 +220,11 @@ def update_profile():
     conn = get_db()
     cursor = conn.cursor()
 
-    # Оновлюємо основні дані
     cursor.execute("""
         UPDATE users SET description = ?, category = ?, city = ?, visible = ? 
         WHERE username = ?
     """, (description, full_category, city, visible, username))
 
-    # Якщо користувач завантажив аватар
     if avatar_file and avatar_file.filename:
         avatar_path = f"static/uploads/{username}_avatar.png"
         os.makedirs(os.path.dirname(avatar_path), exist_ok=True)
@@ -237,16 +236,6 @@ def update_profile():
 
     return redirect(f"/profile/{username}")
 
-@app.route('/shared_chat')
-def shared_chat():
-    if 'username' not in session:
-        return redirect('/login')
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, sender, text, reply_to, media_urls FROM shared_messages ORDER BY timestamp ASC")
-    messages = [{"id": row[0], "sender": row[1], "text": row[2], "reply_to": row[3], "media_urls": row[4]} for row in cursor.fetchall()]
-    conn.close()
-    return render_template("shared_chat.html", username=session['username'], messages=messages)
 
 @app.route('/admin/shared_chat')
 def admin_shared_chat():
