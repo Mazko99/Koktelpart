@@ -42,7 +42,6 @@
     }
     .verified-box {
       border: 2px solid #9900ff;
-      color: #fff;
       background: #2a003f;
       border-radius: 10px;
       padding: 10px;
@@ -153,15 +152,20 @@
         <textarea name="description" class="form-control" maxlength="150" required>{{ user[6] or '' }}</textarea>
 
         <label class="form-label mt-3">Категорія:</label>
-        <select name="category" id="category" class="form-control" required>
+        <select name="category" id="category" class="form-control" required onchange="toggleCityField()">
           <option value="Без категорії" {% if user[7] == 'Без категорії' %}selected{% endif %}>Без категорії</option>
           <option value="Віртуальні моделі" {% if user[7] == 'Віртуальні моделі' %}selected{% endif %}>Віртуальні моделі</option>
-          <optgroup label="Індивідуалки">
-            {% for city in ['Київ','Львів','Харків','Одеса','Дніпро','Запоріжжя','Івано-Франківськ','Тернопіль','Чернівці','Ужгород','Полтава','Чернігів','Житомир','Хмельницький'] %}
-              <option value="Індивідуалка – {{ city }}" {% if user[7] == 'Індивідуалка – ' + city %}selected{% endif %}>Індивідуалка – {{ city }}</option>
-            {% endfor %}
-          </optgroup>
+          <option value="Індивідуалки" {% if user[7] == 'Індивідуалки' %}selected{% endif %}>Індивідуалки</option>
         </select>
+
+        <div id="cityField" class="mt-3" style="display: none;">
+          <label class="form-label">Місто (для індивідуалок):</label>
+          <select name="city" class="form-control">
+            {% for city in ['Київ','Львів','Харків','Одеса','Дніпро','Запоріжжя','Івано-Франківськ','Тернопіль','Чернівці','Ужгород','Полтава','Чернігів','Житомир','Хмельницький'] %}
+              <option value="{{ city }}" {% if user[8] == city %}selected{% endif %}>{{ city }}</option>
+            {% endfor %}
+          </select>
+        </div>
 
         <button type="submit" class="btn btn-primary mt-3">💾 Зберегти зміни</button>
       </div>
@@ -222,6 +226,18 @@
     {% endfor %}
   </div>
 </div>
+
+<script>
+  function toggleCityField() {
+    const category = document.getElementById('category').value;
+    const cityField = document.getElementById('cityField');
+    if (category === 'Індивідуалки') {
+      cityField.style.display = 'block';
+    } else {
+      cityField.style.display = 'none';
+    }
+  }
+  document.addEventListener('DOMContentLoaded', toggleCityField);
+</script>
 </body>
 </html>
-

@@ -124,33 +124,28 @@ def real_models():
     conn = get_db()
     cursor = conn.cursor()
 
-    # Отримати список міст з поля category
+    # Отримати список міст з таблиці
     cursor.execute("""
-        SELECT TRIM(SUBSTR(category, INSTR(category, '–') + 1)) as city, COUNT(*)
-        FROM users
-        WHERE (category = 'Реальні моделі' OR category LIKE 'Індивіалка – %')
-              AND visible = 1
-        GROUP BY city
+        SELECT TRIM(city), COUNT(*) 
+        FROM users 
+        WHERE category = 'Індивіалки' AND visible = 1 AND city IS NOT NULL AND city != ''
+        GROUP BY TRIM(city)
     """)
     cities_data = cursor.fetchall()
 
     if selected_city:
         cursor.execute("""
-            SELECT id, name, avatar,
-                   TRIM(SUBSTR(category, INSTR(category, '–') + 1)) as city,
-                   is_verified
-            FROM users
-            WHERE (category = 'Реальні моделі' OR category LIKE 'Індивіалка – %')
-              AND visible = 1
-              AND LOWER(TRIM(SUBSTR(category, INSTR(category, '–') + 1))) = LOWER(?)
+            SELECT id, name, avatar, city, is_verified 
+            FROM users 
+            WHERE category = 'Індивіалки' 
+              AND visible = 1 
+              AND LOWER(TRIM(city)) = LOWER(?)
         """, (selected_city,))
     else:
         cursor.execute("""
-            SELECT id, name, avatar,
-                   TRIM(SUBSTR(category, INSTR(category, '–') + 1)) as city,
-                   is_verified
-            FROM users
-            WHERE (category = 'Реальні моделі' OR category LIKE 'Індивіалка – %')
+            SELECT id, name, avatar, city, is_verified 
+            FROM users 
+            WHERE category = 'Індивіалки' 
               AND visible = 1
         """)
 
@@ -208,23 +203,33 @@ def profile(username):
 def update_profile():
     if 'username' not in session:
         return redirect('/login')
+
     username = session['username']
     description = request.form.get('description', '')
     category = request.form.get('category', 'Без категорії')
     city = request.form.get('city', '')
     visible = int(request.form.get('visible', 1))
     avatar_file = request.files.get('avatar')
+
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("UPDATE users SET description=?, category=?, city=?, visible=? WHERE username=?",
-                   (description, category, city, visible, username))
+
+    # Оновлюємо основні дані
+    cursor.execute("""
+        UPDATE users SET description = ?, category = ?, city = ?, visible = ? 
+        WHERE username = ?
+    """, (description, category, city, visible, username))
+
+    # Якщо користувач завантажив аватар
     if avatar_file and avatar_file.filename:
         avatar_path = f"static/uploads/{username}_avatar.png"
         os.makedirs(os.path.dirname(avatar_path), exist_ok=True)
         avatar_file.save(avatar_path)
-        cursor.execute("UPDATE users SET avatar=? WHERE username=?", (avatar_path, username))
+        cursor.execute("UPDATE users SET avatar = ? WHERE username = ?", (avatar_path, username))
+
     conn.commit()
     conn.close()
+
     return redirect(f"/profile/{username}")
 
 @app.route('/shared_chat')
