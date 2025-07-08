@@ -11,7 +11,7 @@ app.permanent_session_lifetime = timedelta(days=7)
 socketio = SocketIO(app)
 
 def get_db():
-    return sqlite3.connect(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'users.db'))
+    return sqlite3.connect(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data/users.db'))
 
 @app.before_request
 def update_last_seen():
