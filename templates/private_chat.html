@@ -13,21 +13,29 @@
       font-family: 'Orbitron', sans-serif;
     }
 
-    .menu {
+    .menu-bar {
       display: flex;
       justify-content: center;
-      gap: 30px;
-      margin-top: 20px;
-      font-size: 18px;
+      gap: 20px;
+      padding: 15px;
+      background-color: #000;
     }
 
-    .menu a {
-      color: #d9b3ff;
+    .menu-bar a {
+      padding: 8px 20px;
+      font-size: 16px;
+      border: 2px solid #a600ff;
+      border-radius: 30px;
+      color: #ffccff;
+      background-color: transparent;
       text-decoration: none;
+      transition: 0.3s ease;
     }
 
-    .menu a:hover {
-      text-shadow: 0 0 10px #ff00ff;
+    .menu-bar a:hover {
+      background-color: #a600ff;
+      color: #000;
+      box-shadow: 0 0 12px #a600ff;
     }
 
     .chat-box {
@@ -135,10 +143,10 @@
 </head>
 <body>
 
-  <div class="menu">
+  <div class="menu-bar">
     <a href="/home">🏠 Головна</a>
     <a href="/profile">👤 Профіль</a>
-    <a href="/logout">🟥 Вийти</a>
+    <a href="/logout">🚪 Вийти</a>
   </div>
 
   <h2 class="text-center mt-4">💬 Чат з {{ username }}</h2>

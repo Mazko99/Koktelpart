@@ -2,7 +2,8 @@ from flask import Flask, render_template, request, redirect, session, url_for, j
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 from flask_socketio import SocketIO, emit, join_room
-import sqlite3, os
+import sqlite3
+import os
                 
 
 app = Flask(__name__)
@@ -408,13 +409,13 @@ def handle_send_shared(data):
         "reply_to": reply_to,
         "media_urls": data.get("media_urls", [])
     }, room="shared")
-
 @app.route('/chat_with/<username>', methods=['GET', 'POST'])
 def chat_with(username):
     if 'username' not in session:
         return redirect('/login')
     if username == session['username']:
         return redirect('/profile')
+
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users WHERE username=?", (username,))
@@ -422,14 +423,26 @@ def chat_with(username):
     if not user:
         conn.close()
         return "Користувача не знайдено", 404
-    if request.method == 'POST':
-        message = request.form.get('message', '')
-        if message:
-            cursor.execute("INSERT INTO messages (sender, receiver, content) VALUES (?, ?, ?)",
-                           (session['username'], username, message))
-            conn.commit()
+
+    # Отримуємо всі повідомлення між двома користувачами
+    cursor.execute("""
+        SELECT sender, content, media, status, reply
+        FROM messages
+        WHERE (sender=? AND receiver=?) OR (sender=? AND receiver=?)
+        ORDER BY id ASC
+    """, (session['username'], username, username, session['username']))
+    messages = cursor.fetchall()
     conn.close()
-    return render_template('private_chat.html', username=session['username'], target_username=username)
+
+    # Формуємо унікальну кімнату для двох
+    room = "_".join(sorted([session['username'], username]))
+
+    return render_template("private_chat.html",
+                           username=username,
+                           my_username=session['username'],
+                           messages=messages,
+                           room=room)
+
 
 @app.route('/admin')
 def admin_panel():
@@ -525,6 +538,38 @@ def view_messages():
     messages = cursor.fetchall()
     conn.close()
     return render_template('admin/messages.html', messages=messages)
+@socketio.on('join')
+def handle_join(data):
+    room = data['room']
+    join_room(room)
+
+@socketio.on('send_message')
+def handle_send_message(data):
+    sender = session.get('username')
+    receiver = data['receiver']
+    message = data['message']
+    media_urls = ','.join(data.get('media_urls', [])) if data.get('media_urls') else None
+    reply = data.get('reply')
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    room = data['room']
+
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO messages (sender, receiver, content, media_urls, status, reply_to, timestamp)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (sender, receiver, message, media_urls, 'delivered', reply, timestamp))
+    conn.commit()
+    conn.close()
+
+    emit('receive_message', {
+        'username': sender,
+        'message': message,
+        'media_urls': data.get('media_urls', []),
+        'reply': reply,
+        'timestamp': timestamp
+    }, room=room)
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
