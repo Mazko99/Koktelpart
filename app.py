@@ -601,10 +601,20 @@ def view_messages():
         return redirect('/login')
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT sender, receiver, content FROM messages ORDER BY id DESC")
-    messages = cursor.fetchall()
+    cursor.execute("""
+        SELECT 
+            CASE WHEN sender < receiver THEN sender ELSE receiver END AS user1,
+            CASE WHEN sender < receiver THEN receiver ELSE sender END AS user2,
+            MAX(id) AS last_id
+        FROM messages
+        WHERE sender != receiver
+        GROUP BY user1, user2
+        ORDER BY last_id DESC
+    """)
+    conversations = cursor.fetchall()
     conn.close()
-    return render_template('admin/messages.html', messages=messages)
+    return render_template('admin/messages.html', conversations=conversations)
+
 @socketio.on('join')
 def handle_join(data):
     room = data['room']
