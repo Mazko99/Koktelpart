@@ -1,0 +1,25 @@
+{% extends 'admin/layout.html' %}
+
+{% block title %}Перегляд чату{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Переписка між {{ user1 }} та {{ user2 }}</h2>
+
+  {% if messages %}
+    <ul class="list-group mt-3">
+      {% for msg in messages %}
+        <li class="list-group-item bg-dark text-light">
+          <strong>{{ msg.sender }}:</strong> {{ msg.content }}
+          {% if msg.media_urls %}
+            <br>
+            <img src="{{ msg.media_urls }}" alt="Media" style="max-width: 200px;">
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="alert alert-warning mt-3">Повідомлень не знайдено.</div>
+  {% endif %}
+</div>
+{% endblock %}
