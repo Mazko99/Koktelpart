@@ -11,7 +11,10 @@ app.permanent_session_lifetime = timedelta(days=7)
 socketio = SocketIO(app)
 
 def get_db():
-    return sqlite3.connect(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data/users.db'))
+    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data/users.db')
+    if not os.path.exists(db_path):
+        raise FileNotFoundError("❌ База users.db не знайдена! Не створюємо нову автоматично.")
+    return sqlite3.connect(db_path)
 
 @app.before_request
 def update_last_seen():
@@ -250,6 +253,22 @@ def upload_media():
         if file and file.filename:
             filename = secure_filename(file.filename)
             file.save(os.path.join(user_folder, filename))
+
+    return redirect(f"/profile/{username}")
+
+@app.route('/delete_photo', methods=['POST'])
+def delete_photo():
+    if 'username' not in session:
+        return redirect('/login')
+
+    username = session['username']
+    filename = request.form.get('filename')
+    if not filename:
+        return "Файл не вказано", 400
+
+    file_path = os.path.join('static', 'uploads', username, filename)
+    if os.path.exists(file_path):
+        os.remove(file_path)
 
     return redirect(f"/profile/{username}")
 
