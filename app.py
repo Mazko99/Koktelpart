@@ -272,6 +272,45 @@ def delete_photo():
 
     return redirect(f"/profile/{username}")
 
+@app.route('/add_product', methods=['GET', 'POST'])
+def add_product():
+    if 'username' not in session:
+        return redirect('/login')
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        title = request.form['title']
+        description = request.form['description']
+        price = request.form['price']
+        currency = request.form['currency']
+        user = session['username']
+
+        # Отримати ID користувача
+        cursor.execute("SELECT id FROM users WHERE username=?", (user,))
+        user_id = cursor.fetchone()[0]
+
+        # Завантаження фото
+        image = request.files['image']
+        if image:
+            filename = secure_filename(image.filename)
+            image_path = f"static/uploads/{user}/{filename}"
+            os.makedirs(os.path.dirname(image_path), exist_ok=True)
+            image.save(image_path)
+        else:
+            filename = ""
+
+        cursor.execute("""
+            INSERT INTO products (user_id, title, description, price, image_filename, currency)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (user_id, title, description, price, filename, currency))
+        conn.commit()
+        conn.close()
+        return redirect(f"/profile/{user}")
+
+    return render_template('add_product.html')
+
 
 @app.route('/admin/shared_chat')
 def admin_shared_chat():
