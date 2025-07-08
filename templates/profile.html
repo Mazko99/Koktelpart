@@ -155,7 +155,7 @@
         <select name="category" id="category" class="form-control" required onchange="toggleCityField()">
           <option value="Без категорії" {% if user[7] == 'Без категорії' %}selected{% endif %}>Без категорії</option>
           <option value="Віртуальні моделі" {% if user[7] == 'Віртуальні моделі' %}selected{% endif %}>Віртуальні моделі</option>
-          <option value="Індивідуалки" {% if user[7].startswith('Індивідуалки') %}selected{% endif %}>Індивідуалки</option>
+          <option value="Індивідуалки" {% if user[7] and user[7].startswith('Індивідуалки') %}selected{% endif %}>Індивідуалки</option>
         </select>
 
         <div id="cityField" class="mt-3" style="display: none;">
