@@ -29,11 +29,10 @@
 
     .nav-bar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: center;
+  gap: 20px;
   padding: 20px 0;
   margin-bottom: 30px;
-  border-bottom: 1px solid #4a005a;
   flex-wrap: wrap;
 }
 
@@ -134,14 +133,13 @@
 </head>
 <body class="container py-4">
 
-  <div class="nav-bar">
-    <div>
-      <a href="/home">Головна</a>
-      <a href="/profile">Профіль</a>
-      <a href="/logout">Вийти</a>
-    </div>
-    <h2>Усі користувачі</h2>
-  </div>
+  <div class="nav-bar justify-content-center text-center">
+  <a href="/home">🏠 Головна</a>
+  <a href="/profile">👤 Профіль</a>
+  <a href="/logout">🚪 Вийти</a>
+</div>
+
+<h2 class="text-center mb-4">Усі користувачі</h2>
 
   <div class="row">
     {% if users %}
