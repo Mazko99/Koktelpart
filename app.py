@@ -426,7 +426,7 @@ def chat_with(username):
 
     # Отримуємо всі повідомлення між двома користувачами
     cursor.execute("""
-        SELECT sender, content, media, status, reply
+        SELECT sender, content, media_urls, status, reply
         FROM messages
         WHERE (sender=? AND receiver=?) OR (sender=? AND receiver=?)
         ORDER BY id ASC
@@ -571,5 +571,5 @@ def handle_send_message(data):
         'timestamp': timestamp
     }, room=room)
 
-if __name__ == '__main__':
+if name == 'main':
     socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
