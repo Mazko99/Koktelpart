@@ -593,7 +593,7 @@ def admin_view_chat(user1, user2):
     messages = cursor.fetchall()
     conn.close()
 
-    return render_template("admin_view_chat.html", user1=user1, user2=user2, messages=messages)
+    return render_template("admin/admin_view_chat.html", user1=user1, user2=user2, messages=messages)
 
 @app.route('/admin/messages')
 def view_messages():
