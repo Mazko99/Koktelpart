@@ -197,7 +197,7 @@ def profile():
     return render_template('profile.html', user=user)
 
 @app.route('/profile/<username>')
-def profile(username):
+def view_profile(username):
     if 'username' not in session:
         return redirect('/login')
     conn = get_db()
