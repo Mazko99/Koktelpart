@@ -27,17 +27,37 @@
       border-bottom: 1px solid #4a005a;
     }
 
-    .nav-bar a {
-      color: var(--text-color);
-      margin-right: 15px;
-      text-decoration: none;
-      font-weight: bold;
-      transition: color 0.2s;
-    }
+    .nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #4a005a;
+  flex-wrap: wrap;
+}
 
-    .nav-bar a:hover {
-      color: #ffffff;
-    }
+.nav-bar div {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.nav-bar a {
+  border: 2px solid var(--main-color);
+  color: #ffffff;
+  text-decoration: none;
+  padding: 8px 20px;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.nav-bar a:hover {
+  background-color: var(--main-color);
+  color: #fff;
+  box-shadow: 0 0 15px var(--main-color);
+}
 
     h2 {
       text-shadow: 0 0 8px #9a00ff;
