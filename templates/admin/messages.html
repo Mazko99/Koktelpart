@@ -12,7 +12,7 @@
   {% if dialogs %}
     <div class="list-group">
       {% for dialog in dialogs %}
-        <a href="{{ url_for('admin.view_dialog', user1=dialog[0], user2=dialog[1]) }}"
+        <a href="{{ url_for('admin_view_chat', user1=dialog[0], user2=dialog[1]) }}"
            class="list-group-item list-group-item-action bg-dark text-light">
           {{ dialog[0] }} <span class="text-muted">↔</span> {{ dialog[1] }}
         </a>
