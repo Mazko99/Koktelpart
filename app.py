@@ -599,21 +599,28 @@ def admin_view_chat(user1, user2):
 def view_messages():
     if session.get('username') != 'admin':
         return redirect('/login')
+
     conn = get_db()
     cursor = conn.cursor()
+    
+    # Витягуємо унікальні пари користувачів, які між собою спілкувались
     cursor.execute("""
-        SELECT 
-            CASE WHEN sender < receiver THEN sender ELSE receiver END AS user1,
-            CASE WHEN sender < receiver THEN receiver ELSE sender END AS user2,
-            MAX(id) AS last_id
+        SELECT DISTINCT 
+            CASE 
+                WHEN sender < receiver THEN sender 
+                ELSE receiver 
+            END AS user1,
+            CASE 
+                WHEN sender < receiver THEN receiver 
+                ELSE sender 
+            END AS user2
         FROM messages
         WHERE sender != receiver
-        GROUP BY user1, user2
-        ORDER BY last_id DESC
     """)
-    conversations = cursor.fetchall()
+    dialogs = cursor.fetchall()
     conn.close()
-    return render_template('admin/messages.html', conversations=conversations)
+
+    return render_template("admin/messages.html", dialogs=dialogs)
 
 @socketio.on('join')
 def handle_join(data):
